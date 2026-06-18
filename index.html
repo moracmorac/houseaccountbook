@@ -390,7 +390,7 @@ function deleteRow(name, id) {
             <option value="주거">🏠 주거</option><option value="여가">🎬 여가</option>
             <option value="의료">💊 의료</option><option value="쇼핑">🛍️ 쇼핑</option>
             <option value="공과금">💡 공과금</option><option value="교육">📚 교육</option>
-            <option value="기타">📦 기타</option>
+            <option value="기타">📦 기타</option><option value="통신">📞 통신</option>
           </select>
         </div>
       </div>
@@ -428,8 +428,8 @@ function deleteRow(name, id) {
 
 <script>
 // ── 상수 ──
-const CATS={식비:'#F59E0B',교통:'#3B82F6',주거:'#8B5CF6',여가:'#EC4899',의료:'#10B981',쇼핑:'#F97316',공과금:'#06B6D4',교육:'#6366F1',기타:'#9CA3AF'}
-const EMO={식비:'🍚',교통:'🚌',주거:'🏠',여가:'🎬',의료:'💊',쇼핑:'🛍️',공과금:'💡',교육:'📚',기타:'📦'}
+const CATS={식비:'#F59E0B',교통:'#3B82F6',주거:'#8B5CF6',여가:'#EC4899',의료:'#10B981',쇼핑:'#F97316',공과금:'#06B6D4',교육:'#6366F1',통신:'#14B8A6',기타:'#9CA3AF'}
+const EMO={식비:'🍚',교통:'🚌',주거:'🏠',여가:'🎬',의료:'💊',쇼핑:'🛍️',공과금:'💡',교육:'📚',통신:'📞',기타:'📦'}
 const CUR={
   KRW:{sym:'₩',locale:'ko-KR',dig:0,name:'원'},
   USD:{sym:'$',locale:'en-US',dig:2,name:'달러'},
@@ -762,7 +762,7 @@ function renderFixed(){
       <option value="교통">🚌 교통</option><option value="교육">📚 교육</option>
       <option value="의료">💊 의료</option><option value="식비">🍚 식비</option>
       <option value="여가">🎬 여가</option><option value="쇼핑">🛍️ 쇼핑</option>
-      <option value="기타">📦 기타</option>
+      <option value="기타">📦 기타</option><option value="통신">📞 통신</option>
     </select>
     <input class="fi3 fx-amt" type="number" id="fxAmt" placeholder="₩" onkeydown="if(event.key==='Enter')addFixed()">
     <button class="inp-add" onclick="addFixed()" ${busy?'disabled':''}><i class="ti ti-plus" aria-hidden="true"></i></button>
