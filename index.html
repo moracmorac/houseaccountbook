@@ -443,6 +443,7 @@ let ST={budget:0,currency:'KRW',expenses:[],fixed:[]}
 let tab='list',calD=new Date(),selDay=null
 let varChart=null,fixChart=null   // ④ 차트 두 개
 let busy=false,editTargetId=null
+let editFixedId=null; // 고정지출 수정 버튼 수정사항  
 
 // ── 뷰 전환 ──
 function setView(v){
@@ -818,6 +819,8 @@ function switchTab(t){tab=t;document.getElementById('tl').classList.toggle('act'
 function shiftCal(d){calD=new Date(calD.getFullYear(),calD.getMonth()+d);selDay=null;renderCal()}
 function selCal(ds){selDay=selDay===ds?null:ds;renderCal()}
 
+  // 수정 버튼 추가
+  
 function openEdit(id){
   const e=ST.expenses.find(x=>x.id===id);if(!e)return
   editTargetId=id
@@ -832,6 +835,21 @@ function openEdit(id){
   document.getElementById('subBtn').innerHTML='<i class="ti ti-check" aria-hidden="true"></i> 수정하기'
   document.getElementById('addModal').style.display='flex'
 }
+  
+  // 수정 버튼 고정지출에도 추가
+
+  function openEditFixed(id){
+  const f = ST.fixed.find(x => x.id === id);
+  if(!f) return;
+  editFixedId = id;
+  document.getElementById('fxCat').value = f.category || '기타';
+  document.getElementById('fxName').value = f.name;
+  document.getElementById('fxAmt').value = f.amount;
+  
+  const addB = document.querySelector('.inp-add');
+  if(addB) addB.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>';
+}
+  
 function openAdd(){
   editTargetId=null
   document.getElementById('fDate').value=today()
