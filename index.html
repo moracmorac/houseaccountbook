@@ -870,8 +870,9 @@ function renderFixedList(type) {
 function renderVarDonut(){
   const now=new Date(),m=now.getMonth(),y=now.getFullYear()
   const map={}
-  // ★ [기능 추가] 지출만 합산 & krw_amount 기준 적용
-  ST.expenses.filter(e=>sameM(e.date,m,y)&&e.type==='expense').forEach(e=>{map[e.category]=(map[e.category]||0)+e.krw_amount})
+  // ★ [수정됨] type==='expense' (지출)인 항목만 필터링하여 합산
+  ST.expenses.filter(e=>sameM(e.date,m,y) && e.type==='expense').forEach(e=>{map[e.category]=(map[e.category]||0)+e.krw_amount})
+  
   const keys=Object.keys(map),el=document.getElementById('varDonutCard')
   if(keys.length===0){
     el.innerHTML=`<div class="sh"><span class="st2">변동비 카테고리</span></div><p style="font-size:12px;color:var(--text3);padding:0 18px 16px">이번 달 지출 없음</p>`
@@ -894,8 +895,9 @@ function renderVarDonut(){
 function renderFixDonut(){
   const el=document.getElementById('fixDonutCard')
   const map={}
-  // ★ [기능 추가] 지출만 합산
+  // ★ [수정됨] type==='expense' (지출)인 항목만 필터링하여 합산
   ST.fixed.filter(f=>f.type==='expense').forEach(f=>{map[f.category]=(map[f.category]||0)+f.amount})
+  
   const keys=Object.keys(map)
   if(keys.length===0){
     el.innerHTML=`<div class="sh"><span class="st2">고정비 카테고리</span></div><p style="font-size:12px;color:var(--text3);padding:0 18px 16px">고정 지출 없음</p>`
