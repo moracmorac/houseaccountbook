@@ -367,7 +367,6 @@ let currentModalType = 'expense';
 let hiddenVarCats = new Set();
 let calViewMode = 'month';
 
-// ★ [수정 사항] 목록 정렬 및 수입 필터 상태 변수 추가
 let sortOrder = 'desc'; 
 let showIncomeInList = true;
 
@@ -630,7 +629,6 @@ function renderSum(){
   </div>`
 }
 
-// ★ [수정 사항] 정렬 토글 함수 및 수입 표시 토글 함수
 function toggleSortOrder() {
   sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
   renderList();
@@ -642,25 +640,29 @@ function toggleIncomeList() {
 
 function renderList(){
   const el=document.getElementById('listV')
+  const m=calD.getMonth(), y=calD.getFullYear()
   
-  let sortedList = [...ST.expenses];
+  let sortedList = [...ST.expenses].filter(e => sameM(e.date, m, y));
 
-  // ★ [수정 사항] 날짜순 정렬 (내림차순/올림차순 반영)
   sortedList.sort((a,b) => {
     const da = new Date(a.date), db = new Date(b.date);
     return sortOrder === 'desc' ? db - da : da - db;
   });
   
-  // ★ [수정 사항] 수입 필터링 적용
   if(!showIncomeInList) {
     sortedList = sortedList.filter(e => e.type !== 'income');
   }
 
-  // ★ [수정 사항] 도넛 차트의 숨김 카테고리 필터링 반영
   sortedList = sortedList.filter(e => {
     if (e.type === 'expense' && hiddenVarCats.has(e.category)) return false;
     return true;
   });
+
+  const headerHtml = `<div class="cn" style="padding-bottom:0">
+    <button class="cnb" onclick="shiftCal(-1)"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
+    <span class="ct">${y}년 ${MON[m]}</span>
+    <button class="cnb" onclick="shiftCal(1)"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
+  </div>`;
 
   const controlBar = `<div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 18px; border-bottom: 0.5px solid var(--border);">
     <label style="font-size:13px; color:var(--text2); display:flex; align-items:center; gap:6px; cursor:pointer;">
@@ -672,7 +674,7 @@ function renderList(){
   </div>`;
 
   if(sortedList.length===0){
-    el.innerHTML = controlBar + `<div class="empty"><div style="font-size:40px;margin-bottom:12px">💸</div><div style="font-size:14px;margin-bottom:8px;color:var(--text2)">표시할 내역이 없어요.</div></div>`
+    el.innerHTML = headerHtml + controlBar + `<div class="empty"><div style="font-size:40px;margin-bottom:12px">💸</div><div style="font-size:14px;margin-bottom:8px;color:var(--text2)">이 달의 표시할 내역이 없어요.</div></div>`
     return
   }
   
@@ -697,7 +699,7 @@ function renderList(){
     </div>`
   }).join('');
 
-  el.innerHTML = controlBar + listHtml;
+  el.innerHTML = headerHtml + controlBar + listHtml;
 }
 
 function setCalMode(m) {
@@ -813,12 +815,14 @@ function renderCal(){
 }
 
 function shiftCal(d){
-  if(calViewMode === 'month') {
+  if(tab === 'list' || calViewMode === 'month') {
     calD = new Date(calD.getFullYear(), calD.getMonth()+d, 1);
   } else {
     calD.setDate(calD.getDate() + (d*7));
   }
-  renderCal()
+  
+  if(tab === 'list') renderList();
+  else renderCal();
 }
 
 function openDayModal(ds) {
@@ -903,9 +907,20 @@ function renderVarDonut(){
     return
   }
 
+  const visibleKeys = allKeys.filter(k => !hiddenVarCats.has(k));
+  const visibleData = visibleKeys.map(k => map[k]);
+  const visibleColors = visibleKeys.map(k => CATS[k]||'#9CA3AF');
+  const totalAmt = visibleData.reduce((a,b)=>a+b, 0);
+
   el.innerHTML=`<div class="sh"><span class="st2">${MON[m]} 변동 지출 (원화 환산)</span><span style="font-size:10px;color:var(--text3);cursor:help" title="항목 클릭 시 차트에서 숨길 수 있습니다">👆 항목 클릭 시 ON/OFF</span></div>
   <div class="dw">
-    <div style="width:120px;height:120px;margin-bottom:12px"><canvas id="varDC"></canvas></div>
+    <div style="position:relative; width:120px; height:120px; margin-bottom:12px">
+      <canvas id="varDC"></canvas>
+      <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none;">
+        <span style="font-size:10px; color:var(--text3)">선택 총액</span>
+        <span style="font-size:13px; font-weight:700; color:var(--text); letter-spacing:-0.5px">${fmtS(totalAmt)}</span>
+      </div>
+    </div>
     ${allKeys.map(k=>`<div class="lr" onclick="toggleVarCat('${k}')" style="cursor:pointer; opacity:${hiddenVarCats.has(k)?'0.35':'1'}; transition:opacity 0.2s">
       <span class="llb"><span class="ldot" style="background:${CATS[k]||'#9CA3AF'}"></span>${EMO[k]||''} ${k}</span>
       <span class="lv" style="text-decoration:${hiddenVarCats.has(k)?'line-through':'none'}">${fmtCur(map[k],'KRW')}</span>
@@ -914,10 +929,6 @@ function renderVarDonut(){
   
   if(varChart){varChart.destroy();varChart=null}
   
-  const visibleKeys = allKeys.filter(k => !hiddenVarCats.has(k));
-  const visibleData = visibleKeys.map(k => map[k]);
-  const visibleColors = visibleKeys.map(k => CATS[k]||'#9CA3AF');
-
   requestAnimationFrame(()=>{
     const ctx=document.getElementById('varDC');if(!ctx)return
     varChart=new Chart(ctx,{
@@ -951,12 +962,23 @@ function renderFixDonut(){
     if(fixChart){fixChart.destroy();fixChart=null}
     return
   }
+  
+  const totalAmt = keys.reduce((s,k)=>s+map[k], 0);
+
   el.innerHTML=`<div class="sh"><span class="st2">고정비 카테고리</span></div>
   <div class="dw">
-    <div style="width:120px;height:120px;margin-bottom:12px"><canvas id="fixDC"></canvas></div>
+    <div style="position:relative; width:120px; height:120px; margin-bottom:12px">
+      <canvas id="fixDC"></canvas>
+      <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none;">
+        <span style="font-size:10px; color:var(--text3)">총액</span>
+        <span style="font-size:13px; font-weight:700; color:var(--text); letter-spacing:-0.5px">${fmtS(totalAmt)}</span>
+      </div>
+    </div>
     ${Object.entries(map).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="lr"><span class="llb"><span class="ldot" style="background:${CATS[k]||'#9CA3AF'}"></span>${EMO[k]||''} ${k}</span><span class="lv">${fmtCur(v,'KRW')}</span></div>`).join('')}
   </div>`
+  
   if(fixChart){fixChart.destroy();fixChart=null}
+  
   requestAnimationFrame(()=>{
     const ctx=document.getElementById('fixDC');if(!ctx)return
     fixChart=new Chart(ctx,{type:'doughnut',data:{labels:keys,datasets:[{data:keys.map(k=>map[k]),backgroundColor:keys.map(k=>CATS[k]||'#9CA3AF'),borderWidth:0}]},options:{plugins:{legend:{display:false}},cutout:'70%'}})
