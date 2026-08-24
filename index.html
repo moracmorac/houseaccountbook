@@ -46,7 +46,6 @@ body.force-desktop .app{max-width:1000px}
 .btn-sm{background:none;border:0.5px solid var(--border2);border-radius:var(--rad);padding:7px 12px;font-size:13px;cursor:pointer;color:var(--text2);display:flex;align-items:center;gap:5px;font-weight:500;transition:background .15s}
 .btn-sm:hover:not(:disabled){background:var(--surface2)}
 .btn-sm:disabled{opacity:.45;cursor:not-allowed}
-/* ★ [수정 사항] .cur-sel CSS 클래스 불필요하여 삭제됨 */
 .btn-p{background:var(--accent);color:#fff;border:none;border-radius:var(--rad);padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s;white-space:nowrap}
 .btn-p:hover:not(:disabled){background:var(--accent-hover)}
 .btn-p:disabled{opacity:.45;cursor:not-allowed}
@@ -248,7 +247,6 @@ body.force-mobile .ov{align-items:flex-end}
     </div>
     <div class="hdr-r">
       <button class="btn-sm" onclick="refreshData()" id="refBtn"><i class="ti ti-refresh" style="font-size:14px" aria-hidden="true"></i>새로고침</button>
-      <!-- <!-- ★ [수정 사항] 통화 선택 드롭다운 삭제 완료 --> -->
       <button class="btn-p" id="addBtn" onclick="openAdd()"><i class="ti ti-plus" aria-hidden="true"></i>내역 추가</button>
     </div>
   </div>
@@ -295,6 +293,8 @@ body.force-mobile .ov{align-items:flex-end}
             <option value="공과금" class="opt-exp">💡 공과금</option><option value="교육" class="opt-exp">📚 교육</option>
             <option value="기타" class="opt-exp">📦 기타</option><option value="통신" class="opt-exp">📞 통신</option>
             <option value="여행" class="opt-exp">✈️ 여행</option>
+            <!-- <!-- ★ [수정 사항] 카드값 카테고리 추가 --> -->
+            <option value="카드값" class="opt-exp">💳 카드값</option>
           </select>
         </div>
       </div>
@@ -335,8 +335,9 @@ body.force-mobile .ov{align-items:flex-end}
 </div>
 
 <script>
-const CATS={식비:'#F59E0B',교통:'#3B82F6',주거:'#8B5CF6',여가:'#EC4899',의료:'#10B981',쇼핑:'#F97316',공과금:'#06B6D4',교육:'#6366F1',통신:'#14B8A6',여행:'#0EA5E9',기타:'#9CA3AF', 급여:'#10B981',용돈:'#34D399',부수입:'#059669'}
-const EMO={식비:'🍚',교통:'🚌',주거:'🏠',여가:'🎬',의료:'💊',쇼핑:'🛍️',공과금:'💡',교육:'📚',통신:'📞',여행:'✈️',기타:'📦', 급여:'💰',용돈:'💵',부수입:'📈'}
+// <!-- ★ [수정 사항] 카드값 색상 및 이모지 추가 -->
+const CATS={식비:'#F59E0B',교통:'#3B82F6',주거:'#8B5CF6',여가:'#EC4899',의료:'#10B981',쇼핑:'#F97316',공과금:'#06B6D4',교육:'#6366F1',통신:'#14B8A6',여행:'#0EA5E9',기타:'#9CA3AF', 급여:'#10B981',용돈:'#34D399',부수입:'#059669', 카드값:'#475569'}
+const EMO={식비:'🍚',교통:'🚌',주거:'🏠',여가:'🎬',의료:'💊',쇼핑:'🛍️',공과금:'💡',교육:'📚',통신:'📞',여행:'✈️',기타:'📦', 급여:'💰',용돈:'💵',부수입:'📈', 카드값:'💳'}
 const CUR={
   KRW:{sym:'₩',locale:'ko-KR',dig:0,name:'원'},
   USD:{sym:'$',locale:'en-US',dig:2,name:'달러'},
@@ -352,6 +353,9 @@ let varChart=null,fixChart=null
 let busy=false,editTargetId=null
 let editFixedId=null;
 let currentModalType = 'expense';
+
+// <!-- ★ [수정 사항] 변동 지출 도넛 차트의 숨김 카테고리를 추적할 Set 추가 -->
+let hiddenVarCats = new Set();
 
 function setView(v){
   document.body.classList.remove('force-mobile','force-desktop')
@@ -551,7 +555,6 @@ async function saveBudget(){
 
 function render(){
   renderSum()
-  // ★ [수정 사항] 화면 전환 로직 오류 수정
   if(tab==='list'){
     document.getElementById('listV').style.display='block';
     document.getElementById('calV').style.display='none';
@@ -565,7 +568,6 @@ function render(){
   renderFixedList('expense');
   renderVarDonut()
   renderFixDonut() 
-  // ★ [수정 사항] 통화 선택기(curSel) 렌더링 코드 삭제 완료
 }
 
 function renderSum(){
@@ -708,25 +710,66 @@ function renderFixedList(type) {
   document.getElementById(isInc ? 'fixedIncomeCard' : 'fixedExpenseCard').innerHTML = html;
 }
 
+// <!-- ★ [수정 사항] 클릭 시 필터링을 위한 toggle 함수 추가 -->
+function toggleVarCat(c){
+  if(hiddenVarCats.has(c)) hiddenVarCats.delete(c);
+  else hiddenVarCats.add(c);
+  renderVarDonut();
+}
+
+// <!-- ★ [수정 사항] 클릭 이벤트, 숨김 처리 UI 반영, 필터링 된 데이터로 차트 렌더링 -->
 function renderVarDonut(){
   const now=new Date(),m=now.getMonth(),y=now.getFullYear()
   const map={}
   ST.expenses.filter(e=>sameM(e.date,m,y)&&e.type==='expense').forEach(e=>{map[e.category]=(map[e.category]||0)+e.krw_amount})
-  const keys=Object.keys(map),el=document.getElementById('varDonutCard')
-  if(keys.length===0){
+  
+  // 전체 카테고리 (금액순 정렬)
+  const allKeys=Object.keys(map).sort((a,b)=>map[b]-map[a]);
+  const el=document.getElementById('varDonutCard')
+  
+  if(allKeys.length===0){
     el.innerHTML=`<div class="sh"><span class="st2">변동비 카테고리</span></div><p style="font-size:12px;color:var(--text3);padding:0 18px 16px">이번 달 지출 없음</p>`
     if(varChart){varChart.destroy();varChart=null}
     return
   }
-  el.innerHTML=`<div class="sh"><span class="st2">${MON[m]} 변동 지출 (원화 환산)</span></div>
+
+  el.innerHTML=`<div class="sh"><span class="st2">${MON[m]} 변동 지출 (원화 환산)</span><span style="font-size:10px;color:var(--text3);cursor:help" title="항목 클릭 시 차트에서 숨길 수 있습니다">👆 항목 클릭 시 ON/OFF</span></div>
   <div class="dw">
     <div style="width:120px;height:120px;margin-bottom:12px"><canvas id="varDC"></canvas></div>
-    ${Object.entries(map).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`<div class="lr"><span class="llb"><span class="ldot" style="background:${CATS[k]||'#9CA3AF'}"></span>${EMO[k]||''} ${k}</span><span class="lv">${fmtCur(v,'KRW')}</span></div>`).join('')}
+    ${allKeys.map(k=>`<div class="lr" onclick="toggleVarCat('${k}')" style="cursor:pointer; opacity:${hiddenVarCats.has(k)?'0.35':'1'}; transition:opacity 0.2s">
+      <span class="llb"><span class="ldot" style="background:${CATS[k]||'#9CA3AF'}"></span>${EMO[k]||''} ${k}</span>
+      <span class="lv" style="text-decoration:${hiddenVarCats.has(k)?'line-through':'none'}">${fmtCur(map[k],'KRW')}</span>
+    </div>`).join('')}
   </div>`
+  
   if(varChart){varChart.destroy();varChart=null}
+  
+  // 숨겨지지 않은(체크된) 항목만 골라서 차트 데이터에 넣음
+  const visibleKeys = allKeys.filter(k => !hiddenVarCats.has(k));
+  const visibleData = visibleKeys.map(k => map[k]);
+  const visibleColors = visibleKeys.map(k => CATS[k]||'#9CA3AF');
+
   requestAnimationFrame(()=>{
     const ctx=document.getElementById('varDC');if(!ctx)return
-    varChart=new Chart(ctx,{type:'doughnut',data:{labels:keys,datasets:[{data:keys.map(k=>map[k]),backgroundColor:keys.map(k=>CATS[k]||'#9CA3AF'),borderWidth:0}]},options:{plugins:{legend:{display:false}},cutout:'70%'}})
+    varChart=new Chart(ctx,{
+      type:'doughnut',
+      data:{
+        labels:visibleKeys,
+        // 선택된 항목이 하나도 없을 경우 빈 회색 도넛 표시
+        datasets:[{
+          data:visibleData.length?visibleData:[1],
+          backgroundColor:visibleData.length?visibleColors:['#E5E7EB'],
+          borderWidth:0
+        }]
+      },
+      options:{
+        plugins:{
+          legend:{display:false},
+          tooltip:{enabled:visibleData.length>0}
+        },
+        cutout:'70%'
+      }
+    })
   })
 }
 
@@ -791,7 +834,6 @@ function openAdd(){
   document.getElementById('fAmt').value=''
   document.getElementById('fKrwAmt').value='' 
   document.getElementById('fNote').value=''
-  // ★ [수정 사항] 기본 통화를 KRW로 명시적 고정 (통화 선택기 삭제 대응)
   document.getElementById('fCur').value='KRW' 
   checkCurrency() 
   document.getElementById('fErr').style.display='none'
@@ -804,7 +846,6 @@ function closeAdd(){document.getElementById('addModal').style.display='none'}
 function openBudget(){document.getElementById('bInp').value=ST.budget;document.getElementById('bPfx').textContent=CUR[ST.currency].sym;document.getElementById('budgetModal').style.display='flex';setTimeout(()=>document.getElementById('bInp').focus(),100)}
 function closeBudget(){document.getElementById('budgetModal').style.display='none'}
 
-// ★ [수정 사항] 달력 탭 화면 전환 버그 수정
 function switchTab(t){
   tab=t;
   document.getElementById('tl').classList.toggle('act',t==='list');
