@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
@@ -47,7 +46,7 @@ body.force-desktop .app{max-width:1000px}
 .btn-sm{background:none;border:0.5px solid var(--border2);border-radius:var(--rad);padding:7px 12px;font-size:13px;cursor:pointer;color:var(--text2);display:flex;align-items:center;gap:5px;font-weight:500;transition:background .15s}
 .btn-sm:hover:not(:disabled){background:var(--surface2)}
 .btn-sm:disabled{opacity:.45;cursor:not-allowed}
-.cur-sel{font-size:13px;border:0.5px solid var(--border2);border-radius:var(--rad);padding:7px 10px;background:var(--surface);color:var(--text);cursor:pointer;font-weight:500}
+/* ★ [수정 사항] .cur-sel CSS 클래스 불필요하여 삭제됨 */
 .btn-p{background:var(--accent);color:#fff;border:none;border-radius:var(--rad);padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:background .15s;white-space:nowrap}
 .btn-p:hover:not(:disabled){background:var(--accent-hover)}
 .btn-p:disabled{opacity:.45;cursor:not-allowed}
@@ -116,10 +115,8 @@ body.force-mobile .sum-grid{grid-template-columns:1fr!important}
 .ei-inf{flex:1;min-width:0}
 .ei-nm{font-size:14px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ei-mt{font-size:11px;color:var(--text3);margin-top:2px}
-/* ① 금액 영역: 원화 큰 글씨 + 외화 작은 글씨 */
 .ei-am-wrap{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;gap:2px}
 .ei-am{font-size:14px;font-weight:600;color:var(--text)}
-/* ★ [기능 추가] 수입 텍스트 색상 (초록색) */
 .ei-am.inc{color:var(--success)}
 .ei-am-foreign{font-size:11px;color:var(--text3);font-weight:500}
 .exp-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;padding:4px;opacity:0;transition:opacity .15s;flex-shrink:0;border-radius:6px}
@@ -146,10 +143,8 @@ body.force-mobile .sum-grid{grid-template-columns:1fr!important}
 .sh{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px}
 .st2{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em}
 .fbadge{font-size:11px;font-weight:600;color:#7C3AED;background:rgba(124,58,237,.1);padding:2px 10px;border-radius:20px}
-/* ★ [기능 추가] 고정 수입용 초록 뱃지 */
 .fbadge.inc{color:var(--success);background:rgba(16,185,129,.1)}
 
-/* ③ 고정 지출 행: 카테고리 뱃지 포함 */
 .fi2{display:flex;align-items:center;justify-content:space-between;padding:7px 18px;font-size:13px;gap:8px}
 .fi2-left{display:flex;align-items:center;gap:8px;min-width:0;flex:1}
 .fi2-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
@@ -161,7 +156,6 @@ body.force-mobile .sum-grid{grid-template-columns:1fr!important}
 .fix-del:hover:not(:disabled){color:var(--danger)}
 .fix-del:disabled{cursor:not-allowed}
 
-/* ③ 고정 지출 입력: 카테고리 select 포함 */
 .finp{display:flex;gap:6px;padding:8px 14px 16px;flex-wrap:wrap}
 .finp input,.finp select{font-size:13px;border:0.5px solid var(--border2);border-radius:var(--rad);padding:8px 10px;background:var(--surface);color:var(--text)}
 .finp input:focus,.finp select:focus{outline:none;border-color:var(--accent)}
@@ -172,7 +166,6 @@ body.force-mobile .sum-grid{grid-template-columns:1fr!important}
 .inp-add:hover:not(:disabled){background:var(--accent-hover)}
 .inp-add:disabled{opacity:.45;cursor:not-allowed}
 
-/* ④ 도넛 영역 */
 .dw{padding:10px 18px 16px;display:flex;flex-direction:column;align-items:center}
 .donut-divider{border-top:0.5px dashed var(--border2);margin:10px 18px 0}
 .lr{display:flex;justify-content:space-between;width:100%;font-size:12px;padding:3px 0}
@@ -214,7 +207,6 @@ body.force-mobile .ov{align-items:flex-end}
 .btn-save:hover:not(:disabled){background:var(--accent-hover)}
 .btn-save:disabled{opacity:.5;cursor:not-allowed}
 
-/* ★ [기능 추가] 수입/지출 토글 스타일 */
 .tgl-grp{display:flex;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:16px}
 .tgl-btn{flex:1;text-align:center;padding:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;border-radius:6px;transition:all 0.2s}
 .tgl-btn.act{background:var(--surface);color:var(--accent);box-shadow:var(--shadow)}
@@ -233,103 +225,10 @@ body.force-mobile .ov{align-items:flex-end}
 <div class="app" id="appWrap">
 
 <div class="setup" id="setupBanner">
-  <div class="setup-t"><i class="ti ti-table" style="font-size:16px" aria-hidden="true"></i>Google Sheets 연동 설정 (수입/지출 업데이트)</div>
+  <div class="setup-t"><i class="ti ti-table" style="font-size:16px" aria-hidden="true"></i>Google Sheets 연동 설정</div>
   <div style="font-size:13px;color:var(--text2);line-height:1.7">
-    아래 순서대로 설정하면 모든 데이터가 구글 스프레드시트에 저장됩니다.
-    <div class="schema-box">
-      <!-- ★ [기능 추가] 안내 문구 변경 -->
-      <div class="schema-ttl">① 스프레드시트 헤더 (우측에 열 추가)</div>
-      <strong style="font-size:12px;color:var(--text2)">Sheet1 — 변동 내역 (A~I열) ★ H(type), I(krw_amount) 열 추가됨</strong>
-      <table class="sct" style="margin:5px 0 12px">
-        <tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>F</th><th>G</th><th>H</th><th>I</th></tr>
-        <tr><td>id</td><td>date</td><td>category</td><td>details</td><td>amount</td><td>note</td><td>currency</td><td style="color:var(--accent)">type</td><td style="color:var(--accent)">krw_amount</td></tr>
-      </table>
-      <strong style="font-size:12px;color:var(--text2)">Sheet2 — 고정 내역 (A~E열) ★ E(type) 열 추가됨</strong>
-      <table class="sct" style="margin:5px 0 12px">
-        <tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr>
-        <tr><td>id</td><td>name</td><td>amount</td><td>category</td><td style="color:var(--accent)">type</td></tr>
-      </table>
-      <strong style="font-size:12px;color:var(--text2)">Sheet3 — 설정 (A~B열)</strong>
-      <table class="sct" style="margin:5px 0 4px">
-        <tr><th>열</th><th>헤더명</th><th>예시</th></tr>
-        <tr><td>A</td><td>key</td><td>budget / currency</td></tr>
-        <tr><td>B</td><td>value</td><td>5000000 / KRW</td></tr>
-      </table>
-    </div>
-    <div class="schema-box" style="margin-top:8px">
-      <!-- ★ [기능 추가] GAS 코드 업데이트 -->
-      <div class="schema-ttl">② Apps Script — GET 전용 코드 (type, krw_amount 반영)</div>
-      <div class="gas-code">const SS = SpreadsheetApp.getActiveSpreadsheet();
-
-function doGet(e) {
-  const p = e.parameter;
-  const action = p.action;
-  let result = {};
-
-  if (action === 'load') {
-    result = {
-      expenses: getSheet('Sheet1'),
-      fixed:    getSheet('Sheet2'),
-      settings: getSheet('Sheet3')
-    };
-  } else if (action === 'addExpense') {
-    const item = JSON.parse(p.data);
-    appendRow('Sheet1', [
-      item.id, item.date, item.category,
-      item.details, item.amount, item.note, item.currency,
-      item.type, item.krw_amount // ★ 추가됨
-    ]);
-    result = { ok: true };
-  } else if (action === 'addFixed') {
-    const item = JSON.parse(p.data);
-    // ★ category(D), type(E) 추가됨
-    appendRow('Sheet2', [item.id, item.name, item.amount, item.category, item.type]);
-    result = { ok: true };
-  } else if (action === 'saveSettings') {
-    const s = JSON.parse(p.data);
-    const sh = SS.getSheetByName('Sheet3');
-    sh.clearContents();
-    sh.appendRow(['key', 'value']);
-    sh.appendRow(['budget', s.budget]);
-    sh.appendRow(['currency', s.currency]);
-    result = { ok: true };
-  } else if (action === 'deleteExpense') {
-    deleteRow('Sheet1', p.id);
-    result = { ok: true };
-  } else if (action === 'deleteFixed') {
-    deleteRow('Sheet2', p.id);
-    result = { ok: true };
-  }
-
-  return ContentService
-    .createTextOutput(JSON.stringify(result))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function getSheet(name) {
-  const sh = SS.getSheetByName(name);
-  const rows = sh.getDataRange().getValues();
-  const headers = rows[0];
-  return rows.slice(1).map(r =>
-    Object.fromEntries(headers.map((h, i) => [h, r[i]]))
-  );
-}
-function appendRow(name, values) {
-  SS.getSheetByName(name).appendRow(values);
-}
-function deleteRow(name, id) {
-  const sh = SS.getSheetByName(name);
-  const data = sh.getDataRange().getValues();
-  for (let i = data.length - 1; i >= 1; i--) {
-    if (String(data[i][0]) === String(id)) {
-      sh.deleteRow(i + 1); break;
-    }
-  }
-}</div>
-      <p style="font-size:12px;color:var(--text3);margin-top:8px">저장 후 <strong style="font-weight:600">배포 → 배포 관리 → 수정 → 새 버전 → 배포</strong></p>
-    </div>
     <div style="margin-top:12px">
-      <label style="display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">③ 배포된 웹 앱 URL 입력</label>
+      <label style="display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px">배포된 웹 앱 URL 입력</label>
       <div class="url-row">
         <input type="url" id="urlInp" placeholder="https://script.google.com/macros/s/…/exec">
         <button class="btn-conn" id="connBtn" onclick="connect()"><i class="ti ti-plug" style="font-size:14px" aria-hidden="true"></i>연결</button>
@@ -349,13 +248,7 @@ function deleteRow(name, id) {
     </div>
     <div class="hdr-r">
       <button class="btn-sm" onclick="refreshData()" id="refBtn"><i class="ti ti-refresh" style="font-size:14px" aria-hidden="true"></i>새로고침</button>
-      <select class="cur-sel" id="curSel" onchange="changeCurrency(this.value)">
-        <option value="KRW">🇰🇷 원 (KRW)</option>
-        <option value="USD">🇺🇸 달러 (USD)</option>
-        <option value="JPY">🇯🇵 엔 (JPY)</option>
-        <option value="CNY">🇨🇳 위안 (CNY)</option>
-      </select>
-      <!-- ★ [기능 추가] 버튼 텍스트 변경 -->
+      <!-- <!-- ★ [수정 사항] 통화 선택 드롭다운 삭제 완료 --> -->
       <button class="btn-p" id="addBtn" onclick="openAdd()"><i class="ti ti-plus" aria-hidden="true"></i>내역 추가</button>
     </div>
   </div>
@@ -370,12 +263,8 @@ function deleteRow(name, id) {
       <div id="calV" style="display:none"></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <!-- ④ 변동비 도넛 -->
       <div class="card" style="padding:0;overflow:hidden" id="varDonutCard"></div>
-      <!-- ④ 고정비 도넛 -->
       <div class="card" style="padding:0;overflow:hidden" id="fixDonutCard"></div>
-      
-      <!-- ★ [기능 추가] 고정 수입/지출을 두 개의 카드로 분리하여 렌더링 -->
       <div class="card" style="padding:0;overflow:hidden" id="fixedIncomeCard"></div>
       <div class="card" style="padding:0;overflow:hidden" id="fixedExpenseCard"></div>
     </div>
@@ -383,14 +272,11 @@ function deleteRow(name, id) {
 </div>
 </div>
 
-<!-- 지출 추가/수정 모달 -->
 <div class="ov" id="addModal" style="display:none" onclick="if(event.target===this)closeAdd()">
   <div class="modal">
-    <!-- ★ [기능 추가] modalTitle ID 유지 -->
     <div class="mh"><span class="mt2" id="modalTitle">지출 추가</span><button class="mc" onclick="closeAdd()"><i class="ti ti-x" aria-hidden="true"></i></button></div>
     <div class="mb">
       
-      <!-- ★ [기능 추가] 수입/지출 토글 버튼 -->
       <div class="tgl-grp" id="fTypeGroup">
         <div class="tgl-btn act" onclick="setFType('expense')" id="btnExp">지출</div>
         <div class="tgl-btn" onclick="setFType('income')" id="btnInc">수입</div>
@@ -400,11 +286,9 @@ function deleteRow(name, id) {
         <div><label class="fl">날짜</label><input type="date" class="fi3" id="fDate"></div>
         <div><label class="fl">카테고리</label>
           <select class="fi3" id="fCat">
-            <!-- ★ [기능 추가] 수입용 카테고리 -->
             <option value="급여" class="opt-inc" style="display:none">💰 급여</option>
             <option value="용돈" class="opt-inc" style="display:none">💵 용돈</option>
             <option value="부수입" class="opt-inc" style="display:none">📈 부수입</option>
-            <!-- 기존 지출용 카테고리 -->
             <option value="식비" class="opt-exp">🍚 식비</option><option value="교통" class="opt-exp">🚌 교통</option>
             <option value="주거" class="opt-exp">🏠 주거</option><option value="여가" class="opt-exp">🎬 여가</option>
             <option value="의료" class="opt-exp">💊 의료</option><option value="쇼핑" class="opt-exp">🛍️ 쇼핑</option>
@@ -417,7 +301,6 @@ function deleteRow(name, id) {
       <div class="fg"><label class="fl">내용 <span class="req">*</span></label><input type="text" class="fi3" id="fDet" placeholder="예: 마트 장보기"></div>
       <div class="fg"><label class="fl">금액 <span class="req">*</span></label>
         <div style="display:flex;gap:8px">
-          <!-- ★ [기능 추가] onchange 이벤트 추가 -->
           <select class="fi3" id="fCur" style="width:90px;flex-shrink:0;padding:10px" onchange="checkCurrency()">
             <option value="KRW">KRW</option><option value="USD">USD</option>
             <option value="JPY">JPY</option><option value="CNY">CNY</option>
@@ -425,8 +308,6 @@ function deleteRow(name, id) {
           <input type="number" class="fi3" id="fAmt" placeholder="0" min="0" style="flex:1">
         </div>
       </div>
-
-      <!-- ★ [기능 추가] 외화 입력 시 원화 환산액 입력란 -->
       <div class="fg" id="krwWrap" style="display:none">
         <label class="fl">환산된 원화(₩) 금액 <span class="req">*</span></label>
         <input type="number" class="fi3" id="fKrwAmt" placeholder="예: 45000">
@@ -439,12 +320,10 @@ function deleteRow(name, id) {
   </div>
 </div>
 
-<!-- 예산 모달 -->
 <div class="ov" id="budgetModal" style="display:none" onclick="if(event.target===this)closeBudget()">
   <div class="modal">
     <div class="mh"><span class="mt2">예산 설정</span><button class="mc" onclick="closeBudget()"><i class="ti ti-x" aria-hidden="true"></i></button></div>
     <div class="mb">
-      <!-- ★ [기능 추가] 설명 문구 변경 -->
       <p style="font-size:13px;color:var(--text3);margin-bottom:18px">자산 = 예산 + (고정수입+변동수입) − (고정지출+변동지출)</p>
       <div class="biw"><span class="bpfx" id="bPfx">₩</span><input type="number" class="binp" id="bInp" onkeydown="if(event.key==='Enter')saveBudget()"></div>
       <div class="mbtns">
@@ -456,8 +335,6 @@ function deleteRow(name, id) {
 </div>
 
 <script>
-// ── 상수 ──
-// ★ [기능 추가] 수입 관련 카테고리 색상 및 이모지 추가
 const CATS={식비:'#F59E0B',교통:'#3B82F6',주거:'#8B5CF6',여가:'#EC4899',의료:'#10B981',쇼핑:'#F97316',공과금:'#06B6D4',교육:'#6366F1',통신:'#14B8A6',여행:'#0EA5E9',기타:'#9CA3AF', 급여:'#10B981',용돈:'#34D399',부수입:'#059669'}
 const EMO={식비:'🍚',교통:'🚌',주거:'🏠',여가:'🎬',의료:'💊',쇼핑:'🛍️',공과금:'💡',교육:'📚',통신:'📞',여행:'✈️',기타:'📦', 급여:'💰',용돈:'💵',부수입:'📈'}
 const CUR={
@@ -471,14 +348,11 @@ const MON=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월
 let GAS=localStorage.getItem('gas_url')||''
 let ST={budget:0,currency:'KRW',expenses:[],fixed:[]}
 let tab='list',calD=new Date(),selDay=null
-let varChart=null,fixChart=null   // ④ 차트 두 개
+let varChart=null,fixChart=null 
 let busy=false,editTargetId=null
-let editFixedId=null; // 고정지출 수정 버튼 수정사항  
-
-// ★ [기능 추가] 현재 모달이 수입인지 지출인지 추적
+let editFixedId=null;
 let currentModalType = 'expense';
 
-// ── 뷰 전환 ──
 function setView(v){
   document.body.classList.remove('force-mobile','force-desktop')
   if(v==='mobile')document.body.classList.add('force-mobile')
@@ -489,13 +363,10 @@ function setView(v){
 }
 setView(localStorage.getItem('view_mode')||'auto')
 
-// ── 포맷 ──
-// ① 각 지출 항목의 currency 기준으로 포맷
 function fmtCur(n, cur){
   const c=CUR[cur]||CUR.KRW
   return new Intl.NumberFormat(c.locale,{style:'currency',currency:cur,maximumFractionDigits:c.dig,minimumFractionDigits:c.dig}).format(n)
 }
-// 현재 선택된 기본 통화 기준 포맷 (요약카드·도넛 등에서 사용)
 function fmt(n){return fmtCur(n,ST.currency)}
 function fmtS(n){
   const c=CUR[ST.currency]
@@ -505,7 +376,6 @@ function fmtS(n){
 function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function sameM(ds,m,y){const d=new Date(ds+'T00:00:00');return d.getMonth()===m&&d.getFullYear()===y}
 
-// ── 토스트 ──
 function toast(msg,type='s',dur=3000){
   const a=document.getElementById('toastArea'),t=document.createElement('div')
   t.className=`toast ${type}`
@@ -517,7 +387,6 @@ function toast(msg,type='s',dur=3000){
 function rmToast(id){const el=document.getElementById(id);if(el)el.remove()}
 function setBusy(v){busy=v;['addBtn','refBtn'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=v})}
 
-// ── GAS 통신 ──
 async function gasGet(params){
   const u=new URL(GAS)
   Object.entries(params).forEach(([k,v])=>u.searchParams.set(k,v))
@@ -552,15 +421,12 @@ async function loadData(){
     category:String(r.category),details:String(r.details),
     amount:Number(r.amount),note:String(r.note||''),
     currency:String(r.currency||'KRW'),
-    // ★ [기능 추가] 수입/지출 및 원화 환산 데이터 매핑 (기존 데이터 호환)
     type:String(r.type||'expense'),
     krw_amount:Number(r.krw_amount||r.amount)
   }))
-  // ③ category 포함해서 로드
   ST.fixed=(d.fixed||[]).filter(r=>r.id).map(r=>({
     id:String(r.id),name:String(r.name),amount:Number(r.amount),
     category:String(r.category||'기타'),
-    // ★ [기능 추가] 고정비 수입/지출 처리
     type:String(r.type||'expense')
   }))
   ;(d.settings||[]).forEach(s=>{
@@ -577,19 +443,15 @@ async function refreshData(){
   finally{setBusy(false);render()}
 }
 
-// ★ [기능 추가] 수입/지출 모달 토글 함수
 function setFType(type){
   currentModalType = type;
   document.getElementById('btnExp').classList.toggle('act', type==='expense');
   document.getElementById('btnInc').classList.toggle('act', type==='income');
-  // 카테고리 옵션 표시/숨김
   document.querySelectorAll('.opt-exp').forEach(el=>el.style.display = type==='expense'?'block':'none');
   document.querySelectorAll('.opt-inc').forEach(el=>el.style.display = type==='income'?'block':'none');
-  // 기본 선택값 변경
   document.getElementById('fCat').value = type==='expense' ? '식비' : '급여';
 }
 
-// ★ [기능 추가] 외화 선택 확인 함수
 function checkCurrency() {
   const isKrw = document.getElementById('fCur').value === 'KRW';
   document.getElementById('krwWrap').style.display = isKrw ? 'none' : 'block';
@@ -600,7 +462,6 @@ async function addExpense(){
   const det=document.getElementById('fDet').value.trim()
   const amt=parseFloat(document.getElementById('fAmt').value)
   const cur=document.getElementById('fCur').value
-  // ★ [기능 추가] 원화 환산액 설정 (KRW면 그대로, 외화면 입력값)
   const krw_amt = cur === 'KRW' ? amt : parseFloat(document.getElementById('fKrwAmt').value);
 
   if(!det){showFErr('내용을 입력해주세요.');return}
@@ -610,12 +471,12 @@ async function addExpense(){
   const item={
     id:editTargetId||`${Date.now()}-${Math.random().toFixed(8)}`,
     date:document.getElementById('fDate').value,
-    type:currentModalType, // ★ [기능 추가] 저장할 때 타입 추가
+    type:currentModalType,
     category:document.getElementById('fCat').value,
     details:det,amount:amt,
     note:document.getElementById('fNote').value.trim(),
     currency:cur,
-    krw_amount:krw_amt // ★ [기능 추가] 환산액 추가
+    krw_amount:krw_amt 
   }
   const btn=document.getElementById('subBtn')
   btn.disabled=true;setBusy(true)
@@ -642,8 +503,6 @@ async function delExpense(id){
   finally{setBusy(false);render()}
 }
 
-// ③ 고정 지출 추가 — category 포함
-// ★ [기능 추가] type 파라미터 받도록 수정 (고정수입/고정지출 분리)
 async function addFixed(type = 'expense'){
   const suffix = type === 'income' ? 'Inc' : '';
   const name=document.getElementById('fxName'+suffix).value.trim()
@@ -651,7 +510,6 @@ async function addFixed(type = 'expense'){
   const cat=document.getElementById('fxCat'+suffix).value
   if(!name||!amt||amt<=0){toast('항목명과 금액을 입력해주세요.','e');return}
   
-  // 수정 로직 포함
   const targetId = editFixedId || `${Date.now()}-${Math.random().toFixed(8)}`;
   const item={id:targetId, type, name, amount:amt, category:cat}
   
@@ -691,41 +549,33 @@ async function saveBudget(){
   finally{btn.disabled=false;btn.innerHTML='<i class="ti ti-check"></i> 저장'}
 }
 
-async function changeCurrency(v){
-  ST.currency=v
-  document.getElementById('bPfx').textContent=CUR[v].sym
-  const tid=toast('통화 저장 중...','l',0)
-  try{await gasGet({action:'saveSettings',data:JSON.stringify({budget:ST.budget,currency:v})});rmToast(tid);render()}
-  catch(e){rmToast(tid);toast('통화 저장 실패','e',3000)}
-}
-
-// ── 렌더 ──
 function render(){
   renderSum()
-  if(tab==='list')renderList();else renderCal()
-  // ★ [기능 추가] 고정 항목 2개로 나누어 렌더링
+  // ★ [수정 사항] 화면 전환 로직 오류 수정
+  if(tab==='list'){
+    document.getElementById('listV').style.display='block';
+    document.getElementById('calV').style.display='none';
+    renderList();
+  } else {
+    document.getElementById('listV').style.display='none';
+    document.getElementById('calV').style.display='block';
+    renderCal();
+  }
   renderFixedList('income');
   renderFixedList('expense');
-  renderVarDonut()   // ④
-  renderFixDonut()   // ④
-  const s=document.getElementById('curSel');if(s)s.value=ST.currency
+  renderVarDonut()
+  renderFixDonut() 
+  // ★ [수정 사항] 통화 선택기(curSel) 렌더링 코드 삭제 완료
 }
 
 function renderSum(){
   const now=new Date(),tm=now.getMonth(),ty=now.getFullYear()
-  
-  // ★ [기능 추가] 수입/지출 나누어 계산
   const fixExp = ST.fixed.filter(f=>f.type==='expense').reduce((s,e)=>s+e.amount,0);
   const fixInc = ST.fixed.filter(f=>f.type==='income').reduce((s,e)=>s+e.amount,0);
-  
-  // 자산 계산 시 모든 변동내역은 krw_amount를 사용
   const allExpKRW = ST.expenses.filter(e=>e.type==='expense').reduce((s,e)=>s+e.krw_amount,0);
   const allIncKRW = ST.expenses.filter(e=>e.type==='income').reduce((s,e)=>s+e.krw_amount,0);
-  
   const tmExpKRW = ST.expenses.filter(e=>sameM(e.date,tm,ty)&&e.type==='expense').reduce((s,e)=>s+e.krw_amount,0);
   const tmIncKRW = ST.expenses.filter(e=>sameM(e.date,tm,ty)&&e.type==='income').reduce((s,e)=>s+e.krw_amount,0);
-  
-  // 자산 = 예산 + 총수입 - 총지출
   const assets = ST.budget + (fixInc + allIncKRW) - (fixExp + allExpKRW);
 
   document.getElementById('sumGrid').innerHTML=`
@@ -743,7 +593,6 @@ function renderSum(){
   </div>`
 }
 
-// ① 목록: 각 항목의 currency로 금액 표시 + 기본 통화가 다를 때 외화 작은 글씨 표시
 function renderList(){
   const el=document.getElementById('listV')
   if(ST.expenses.length===0){
@@ -751,12 +600,8 @@ function renderList(){
     return
   }
   el.innerHTML=ST.expenses.map((e,i)=>{
-    // ★ [기능 추가] 수입 여부에 따라 기호 및 색상 변경
     const isInc = e.type === 'income';
-    // ① 항목 자신의 통화로 메인 금액 표시
     const mainAmt = (isInc?'+':'') + fmtCur(e.amount, e.currency)
-    // ② 기본 표시 통화와 다른 외화일 때 "USD" 같은 통화 태그 작게 표시
-    // ★ [기능 추가] 외화일 경우 환산된 원화를 괄호로 표시 (예: ¥50,000 (₩450,000))
     const foreignTag = e.currency !== 'KRW' 
       ? `<span class="ei-am-foreign">(${fmtCur(e.krw_amount, 'KRW')})</span>` 
       : '';
@@ -790,7 +635,6 @@ function renderCal(){
   const m=calD.getMonth(),y=calD.getFullYear()
   const days=new Date(y,m+1,0).getDate(),first=new Date(y,m,1).getDay()
   const now=new Date(),daily={}
-  // ★ [기능 추가] 수입은 양수, 지출은 음수로 합산 (환산된 krw_amount 기준)
   ST.expenses.forEach(e=>{
     if(sameM(e.date,m,y)) {
       daily[e.date] = (daily[e.date]||0) + (e.type==='income' ? e.krw_amount : -e.krw_amount)
@@ -801,7 +645,6 @@ function renderCal(){
   for(let d=1;d<=days;d++){
     const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
     const amt=daily[ds],isT=d===now.getDate()&&m===now.getMonth()&&y===now.getFullYear(),isSel=selDay===ds
-    // ★ [기능 추가] 달력 셀 금액 색상 (양수면 초록, 음수면 빨강)
     cells.push(`<div class="cc ${isSel?'sel':isT?'tod':amt?'has':''}" onclick="selCal('${ds}')"><span>${d}</span>${amt!==undefined&&amt!==0?`<span class="camt" style="color:${amt>0?'var(--success)':'var(--danger)'}">${amt>0?'+':''}${Math.abs(amt/10000).toFixed(0)}만</span>`:''}</div>`)
   }
   const si=selDay?ST.expenses.filter(e=>e.date===selDay):[]
@@ -828,10 +671,9 @@ function renderCal(){
   </div>`:''}`
 }
 
-// ★ [기능 추가] 고정 항목을 수입/지출로 나누어 렌더링
 function renderFixedList(type) {
   const isInc = type === 'income';
-  const suffix = isInc ? 'Inc' : ''; // 기존 지출은 suffix 빈칸유지 (호환성)
+  const suffix = isInc ? 'Inc' : ''; 
   const list = ST.fixed.filter(f => f.type === type);
   const total = list.reduce((s,e)=>s+e.amount, 0);
   
@@ -866,13 +708,10 @@ function renderFixedList(type) {
   document.getElementById(isInc ? 'fixedIncomeCard' : 'fixedExpenseCard').innerHTML = html;
 }
 
-// ④ 변동비 도넛
 function renderVarDonut(){
   const now=new Date(),m=now.getMonth(),y=now.getFullYear()
   const map={}
-  // ★ [수정됨] type==='expense' (지출)인 항목만 필터링하여 합산
-  ST.expenses.filter(e=>sameM(e.date,m,y) && e.type==='expense').forEach(e=>{map[e.category]=(map[e.category]||0)+e.krw_amount})
-  
+  ST.expenses.filter(e=>sameM(e.date,m,y)&&e.type==='expense').forEach(e=>{map[e.category]=(map[e.category]||0)+e.krw_amount})
   const keys=Object.keys(map),el=document.getElementById('varDonutCard')
   if(keys.length===0){
     el.innerHTML=`<div class="sh"><span class="st2">변동비 카테고리</span></div><p style="font-size:12px;color:var(--text3);padding:0 18px 16px">이번 달 지출 없음</p>`
@@ -891,13 +730,10 @@ function renderVarDonut(){
   })
 }
 
-// ④ 고정비 도넛
 function renderFixDonut(){
   const el=document.getElementById('fixDonutCard')
   const map={}
-  // ★ [수정됨] type==='expense' (지출)인 항목만 필터링하여 합산
   ST.fixed.filter(f=>f.type==='expense').forEach(f=>{map[f.category]=(map[f.category]||0)+f.amount})
-  
   const keys=Object.keys(map)
   if(keys.length===0){
     el.innerHTML=`<div class="sh"><span class="st2">고정비 카테고리</span></div><p style="font-size:12px;color:var(--text3);padding:0 18px 16px">고정 지출 없음</p>`
@@ -916,25 +752,17 @@ function renderFixDonut(){
   })
 }
 
-  // 수정 버튼 추가
-  
 function openEdit(id){
   const e=ST.expenses.find(x=>x.id===id);if(!e)return
   editTargetId=id
-  
-  // ★ [기능 추가] 수정 시 기존 값이 수입인지 지출인지 세팅
   setFType(e.type || 'expense');
-  
   document.getElementById('fDate').value=e.date
   document.getElementById('fCat').value=e.category
   document.getElementById('fDet').value=e.details
   document.getElementById('fCur').value=e.currency||'KRW'
   document.getElementById('fAmt').value=e.amount
-  
-  // ★ [기능 추가] 원화 환산액도 세팅
   document.getElementById('fKrwAmt').value=e.krw_amount || e.amount || '';
-  checkCurrency(); // 외화면 환산창 열어주기
-
+  checkCurrency(); 
   document.getElementById('fNote').value=e.note||''
   document.getElementById('fErr').style.display='none'
   document.getElementById('modalTitle').textContent='내역 수정'
@@ -942,35 +770,30 @@ function openEdit(id){
   document.getElementById('addModal').style.display='flex'
 }
   
-  // 수정 버튼 고정지출에도 추가
-
-  function openEditFixed(id){
+function openEditFixed(id){
   const f = ST.fixed.find(x => x.id === id);
   if(!f) return;
   editFixedId = id;
-  
-  // ★ [기능 추가] 수입/지출에 따라 해당 폼(suffix)에 값 채우기
   const isInc = f.type === 'income';
   const suffix = isInc ? 'Inc' : '';
-  
   document.getElementById('fxCat'+suffix).value = f.category || (isInc ? '급여' : '기타');
   document.getElementById('fxName'+suffix).value = f.name;
   document.getElementById('fxAmt'+suffix).value = f.amount;
-  
   const addB = document.getElementById('addFixBtn'+suffix);
   if(addB) addB.innerHTML = '<i class="ti ti-check" aria-hidden="true"></i>';
 }
   
 function openAdd(){
   editTargetId=null
-  setFType('expense') // ★ [기능 추가] 기본은 지출로
+  setFType('expense') 
   document.getElementById('fDate').value=today()
   document.getElementById('fDet').value=''
   document.getElementById('fAmt').value=''
-  document.getElementById('fKrwAmt').value='' // ★ 초기화
+  document.getElementById('fKrwAmt').value='' 
   document.getElementById('fNote').value=''
-  document.getElementById('fCur').value=ST.currency
-  checkCurrency() // ★ 환산창 닫기
+  // ★ [수정 사항] 기본 통화를 KRW로 명시적 고정 (통화 선택기 삭제 대응)
+  document.getElementById('fCur').value='KRW' 
+  checkCurrency() 
   document.getElementById('fErr').style.display='none'
   document.getElementById('modalTitle').textContent='내역 추가'
   document.getElementById('subBtn').innerHTML='<i class="ti ti-plus" aria-hidden="true"></i> 추가하기'
@@ -980,6 +803,22 @@ function openAdd(){
 function closeAdd(){document.getElementById('addModal').style.display='none'}
 function openBudget(){document.getElementById('bInp').value=ST.budget;document.getElementById('bPfx').textContent=CUR[ST.currency].sym;document.getElementById('budgetModal').style.display='flex';setTimeout(()=>document.getElementById('bInp').focus(),100)}
 function closeBudget(){document.getElementById('budgetModal').style.display='none'}
+
+// ★ [수정 사항] 달력 탭 화면 전환 버그 수정
+function switchTab(t){
+  tab=t;
+  document.getElementById('tl').classList.toggle('act',t==='list');
+  document.getElementById('tc').classList.toggle('act',t==='cal');
+  if(t==='list'){
+    document.getElementById('listV').style.display='block';
+    document.getElementById('calV').style.display='none';
+    renderList();
+  } else {
+    document.getElementById('listV').style.display='none';
+    document.getElementById('calV').style.display='block';
+    renderCal();
+  }
+}
 
 if(GAS){document.getElementById('urlInp').value=GAS;document.getElementById('setupBanner').style.display='none';document.getElementById('main').style.display='block';refreshData()}
 
