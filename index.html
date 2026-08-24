@@ -698,7 +698,7 @@ function renderList(){
         <button class="exp-del" data-action="del" data-idx="${i}" title="삭제"><i class="ti ti-trash" aria-hidden="true"></i></button>
       </div>
     </div>`
-  }).join('')  
+  }).join('')
     el.querySelectorAll('[data-action]').forEach(btn=>{
     btn.addEventListener('click',()=>{
       const idx=parseInt(btn.dataset.idx)
