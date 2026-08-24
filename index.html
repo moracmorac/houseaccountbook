@@ -700,7 +700,6 @@ function renderList(){
     </div>`
   }).join('')  el.querySelectorAll('[data-action]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      if(busy)return
       const idx=parseInt(btn.dataset.idx)
       const expense=ST.expenses[idx]
       if(!expense)return
