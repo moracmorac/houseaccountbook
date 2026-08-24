@@ -677,7 +677,7 @@ function renderList(){
     el.innerHTML=`<div class="empty"><div style="font-size:40px;margin-bottom:12px">💸</div><div style="font-size:14px;margin-bottom:8px;color:var(--text2)">아직 지출 내역이 없어요.</div><button style="background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;font-weight:500" onclick="openAdd()">첫 지출을 추가해보세요 →</button></div>`
     return
   }
-  el.innerHTML=ST.expenses.map(e=>{
+  el.innerHTML=ST.expenses.map((e,i)=>{
     // ① 항목 자신의 통화로 메인 금액 표시
     const mainAmt=fmtCur(e.amount, e.currency)
     // ② 기본 표시 통화와 다른 외화일 때 "USD" 같은 통화 태그 작게 표시
@@ -694,11 +694,20 @@ function renderList(){
         ${foreignTag}
       </div>
       <div style="display:flex;gap:2px;flex-shrink:0">
-        <button class="exp-del" onclick="openEdit('${e.id}')" ${busy?'disabled':''} title="수정" style="color:var(--accent)"><i class="ti ti-pencil" aria-hidden="true"></i></button>
-        <button class="exp-del" onclick="delExpense('${e.id}')" ${busy?'disabled':''} title="삭제"><i class="ti ti-trash" aria-hidden="true"></i></button>
+        <button class="exp-del" data-action="edit" data-idx="${i}" title="수정" style="color:var(--accent)"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+        <button class="exp-del" data-action="del" data-idx="${i}" title="삭제"><i class="ti ti-trash" aria-hidden="true"></i></button>
       </div>
     </div>`
-  }).join('')
+  }).join('')  el.querySelectorAll('[data-action]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      if(busy)return
+      const idx=parseInt(btn.dataset.idx)
+      const expense=ST.expenses[idx]
+      if(!expense)return
+      if(btn.dataset.action==='edit')openEdit(expense.id)
+      if(btn.dataset.action==='del')delExpense(expense.id)
+    })
+  })
 }
 
 function renderCal(){
