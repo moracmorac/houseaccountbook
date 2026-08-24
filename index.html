@@ -135,8 +135,10 @@ body.force-mobile .sum-grid{grid-template-columns:1fr!important}
 .cc.has{background:rgba(251,191,36,.13);color:var(--text)}
 .cc.tod{background:var(--accent-l);outline:1.5px solid rgba(79,70,229,.35);color:var(--accent)}
 .cc.sel{background:var(--accent);color:#fff}
-.camt{font-size:9px;color:#D97706;margin-top:1px}
-.cc.sel .camt{color:rgba(255,255,255,.75)}
+/* ★ [수정 사항] 달력 금액 색상 분리 스타일 (수입/지출) */
+.camt{font-size:9.5px;margin-top:1px;font-weight:600;letter-spacing:-0.5px;line-height:1.2}
+.camt.inc{color:var(--success)}
+.camt.exp{color:var(--danger)}
 .cd{border-top:0.5px solid var(--border);padding:14px 18px}
 
 .sh{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px}
@@ -209,6 +211,11 @@ body.force-mobile .ov{align-items:flex-end}
 .tgl-grp{display:flex;background:var(--surface2);border-radius:8px;padding:4px;margin-bottom:16px}
 .tgl-btn{flex:1;text-align:center;padding:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;border-radius:6px;transition:all 0.2s}
 .tgl-btn.act{background:var(--surface);color:var(--accent);box-shadow:var(--shadow)}
+
+/* ★ [수정 사항] 주간/월간 뷰 버튼 그룹 스타일 */
+.cal-mode-grp{display:flex; gap:10px; padding:0 18px 10px; justify-content:flex-end}
+.cal-mode-btn{background:none; border:none; color:var(--text3); font-size:12px; font-weight:600; cursor:pointer; padding:4px 8px; border-radius:6px;}
+.cal-mode-btn.act{color:var(--accent); background:var(--accent-l);}
 </style>
 </head>
 <body>
@@ -293,7 +300,6 @@ body.force-mobile .ov{align-items:flex-end}
             <option value="공과금" class="opt-exp">💡 공과금</option><option value="교육" class="opt-exp">📚 교육</option>
             <option value="기타" class="opt-exp">📦 기타</option><option value="통신" class="opt-exp">📞 통신</option>
             <option value="여행" class="opt-exp">✈️ 여행</option>
-            <!-- ★ [수정 사항] 카드값 카테고리 추가 -->
             <option value="카드값" class="opt-exp">💳 카드값</option>
           </select>
         </div>
@@ -308,9 +314,10 @@ body.force-mobile .ov{align-items:flex-end}
           <input type="number" class="fi3" id="fAmt" placeholder="0" min="0" style="flex:1">
         </div>
       </div>
+      <!-- ★ [수정 사항] 환율 입력 방식으로 라벨 변경 -->
       <div class="fg" id="krwWrap" style="display:none">
-        <label class="fl">환산된 원화(₩) 금액 <span class="req">*</span></label>
-        <input type="number" class="fi3" id="fKrwAmt" placeholder="예: 45000">
+        <label class="fl">적용 환율 <span id="rateLabel" style="color:var(--accent)"></span> <span class="req">*</span></label>
+        <input type="number" class="fi3" id="fKrwAmt" placeholder="예: 900">
       </div>
 
       <div class="fg"><label class="fl">메모</label><input type="text" class="fi3" id="fNote" placeholder="선택사항"></div>
@@ -334,8 +341,17 @@ body.force-mobile .ov{align-items:flex-end}
   </div>
 </div>
 
+<!-- ★ [수정 사항] 달력 일자 클릭 시 뜨는 내역 모달창 구조 -->
+<div class="ov" id="dayModal" style="display:none" onclick="if(event.target===this)closeDayModal()">
+  <div class="modal">
+    <div class="mh"><span class="mt2" id="dayModalTitle">날짜 내역</span><button class="mc" onclick="closeDayModal()"><i class="ti ti-x" aria-hidden="true"></i></button></div>
+    <div class="mb" id="dayModalBody" style="max-height:60vh; overflow-y:auto; padding-top:10px;">
+    </div>
+  </div>
+</div>
+
 <script>
-// <!-- ★ [수정 사항] 카드값 색상 및 이모지 추가 -->
+// ★ [수정 사항] 카드값 색상 및 이모지 추가
 const CATS={식비:'#F59E0B',교통:'#3B82F6',주거:'#8B5CF6',여가:'#EC4899',의료:'#10B981',쇼핑:'#F97316',공과금:'#06B6D4',교육:'#6366F1',통신:'#14B8A6',여행:'#0EA5E9',기타:'#9CA3AF', 급여:'#10B981',용돈:'#34D399',부수입:'#059669', 카드값:'#475569'}
 const EMO={식비:'🍚',교통:'🚌',주거:'🏠',여가:'🎬',의료:'💊',쇼핑:'🛍️',공과금:'💡',교육:'📚',통신:'📞',여행:'✈️',기타:'📦', 급여:'💰',용돈:'💵',부수입:'📈', 카드값:'💳'}
 const CUR={
@@ -348,14 +364,14 @@ const MON=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월
 
 let GAS=localStorage.getItem('gas_url')||''
 let ST={budget:0,currency:'KRW',expenses:[],fixed:[]}
-let tab='list',calD=new Date(),selDay=null
+let tab='list',calD=new Date()
 let varChart=null,fixChart=null 
 let busy=false,editTargetId=null
 let editFixedId=null;
 let currentModalType = 'expense';
-
-// <!-- ★ [수정 사항] 변동 지출 도넛 차트의 숨김 카테고리를 추적할 Set 추가 -->
 let hiddenVarCats = new Set();
+// ★ [수정 사항] 달력 보기 모드 상태 저장 변수 (month 또는 week)
+let calViewMode = 'month';
 
 function setView(v){
   document.body.classList.remove('force-mobile','force-desktop')
@@ -374,7 +390,7 @@ function fmtCur(n, cur){
 function fmt(n){return fmtCur(n,ST.currency)}
 function fmtS(n){
   const c=CUR[ST.currency]
-  if(ST.currency==='KRW'){if(n>=100000000)return c.sym+(n/100000000).toFixed(1)+'억';if(n>=10000)return c.sym+(n/10000).toFixed(1)+'만';return c.sym+Math.round(n)}
+  if(ST.currency==='KRW'){if(n>=10000)return c.sym+Math.round(n/10000)+'만';return c.sym+Math.round(n)}
   return c.sym+n.toFixed(c.dig)
 }
 function today(){const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
@@ -457,20 +473,37 @@ function setFType(type){
 }
 
 function checkCurrency() {
-  const isKrw = document.getElementById('fCur').value === 'KRW';
+  const cur = document.getElementById('fCur').value;
+  const isKrw = cur === 'KRW';
   document.getElementById('krwWrap').style.display = isKrw ? 'none' : 'block';
-  if(isKrw) document.getElementById('fKrwAmt').value = '';
+
+  if (!isKrw) {
+    const rl = document.getElementById('rateLabel');
+    if (cur === 'USD') rl.textContent = '(1달러당 ₩)';
+    else if (cur === 'JPY') rl.textContent = '(100엔당 ₩)';
+    else if (cur === 'CNY') rl.textContent = '(1위안당 ₩)';
+  } else {
+    document.getElementById('fKrwAmt').value = '';
+  }
 }
 
 async function addExpense(){
   const det=document.getElementById('fDet').value.trim()
   const amt=parseFloat(document.getElementById('fAmt').value)
   const cur=document.getElementById('fCur').value
-  const krw_amt = cur === 'KRW' ? amt : parseFloat(document.getElementById('fKrwAmt').value);
+  
+  let krw_amt = amt;
+  let rate = parseFloat(document.getElementById('fKrwAmt').value);
 
   if(!det){showFErr('내용을 입력해주세요.');return}
   if(!amt||amt<=0){showFErr('올바른 금액을 입력해주세요.');return}
-  if(cur !== 'KRW' && (!krw_amt || krw_amt<=0)){showFErr('환산된 원화 금액을 입력해주세요.');return}
+  
+  if (cur !== 'KRW') {
+    if (!rate || rate <= 0) { showFErr('적용 환율을 입력해주세요.'); return; }
+    if (cur === 'JPY') krw_amt = amt * (rate / 100);
+    else krw_amt = amt * rate;
+    krw_amt = Math.round(krw_amt);
+  }
 
   const item={
     id:editTargetId||`${Date.now()}-${Math.random().toFixed(8)}`,
@@ -493,7 +526,9 @@ async function addExpense(){
     await gasGet({action:'addExpense',data:JSON.stringify(item)})
     ST.expenses.unshift(item)
     rmToast(tid);toast(editTargetId?'수정되었습니다.':'저장되었습니다.','s')
-    closeAdd();render()
+    closeAdd();
+    document.getElementById('dayModal').style.display='none'; 
+    render()
   }catch(e){rmToast(tid);toast('실패: '+e.message,'e',4000)}
   finally{btn.disabled=false;btn.innerHTML=editTargetId?'<i class="ti ti-check"></i> 수정하기':'<i class="ti ti-plus"></i> 추가하기';setBusy(false)}
 }
@@ -502,7 +537,9 @@ function showFErr(m){const e=document.getElementById('fErr');e.textContent=m;e.s
 async function delExpense(id){
   if(busy)return;setBusy(true)
   const tid=toast('삭제 중...','l',0)
-  try{await gasGet({action:'deleteExpense',id});ST.expenses=ST.expenses.filter(e=>e.id!==id);rmToast(tid);toast('삭제되었습니다.','s')}
+  try{await gasGet({action:'deleteExpense',id});ST.expenses=ST.expenses.filter(e=>e.id!==id);rmToast(tid);toast('삭제되었습니다.','s')
+    document.getElementById('dayModal').style.display='none'; 
+  }
   catch(e){rmToast(tid);toast('삭제 실패: '+e.message,'e',4000)}
   finally{setBusy(false);render()}
 }
@@ -597,11 +634,22 @@ function renderSum(){
 
 function renderList(){
   const el=document.getElementById('listV')
-  if(ST.expenses.length===0){
-    el.innerHTML=`<div class="empty"><div style="font-size:40px;margin-bottom:12px">💸</div><div style="font-size:14px;margin-bottom:8px;color:var(--text2)">아직 지출 내역이 없어요.</div><button style="background:none;border:none;color:var(--accent);font-size:13px;cursor:pointer;font-weight:500" onclick="openAdd()">첫 지출을 추가해보세요 →</button></div>`
+  
+  // ★ [수정 사항] 6. 입력순이 아닌 날짜순(최신순) 정렬 적용
+  let sortedList = [...ST.expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
+  
+  // ★ [수정 사항] 5. 도넛 차트에서 끈(숨긴) 변동 지출 카테고리 필터링
+  sortedList = sortedList.filter(e => {
+    if (e.type === 'expense' && hiddenVarCats.has(e.category)) return false;
+    return true;
+  });
+
+  if(sortedList.length===0){
+    el.innerHTML=`<div class="empty"><div style="font-size:40px;margin-bottom:12px">💸</div><div style="font-size:14px;margin-bottom:8px;color:var(--text2)">표시할 내역이 없어요.</div></div>`
     return
   }
-  el.innerHTML=ST.expenses.map((e,i)=>{
+  
+  el.innerHTML=sortedList.map((e,i)=>{
     const isInc = e.type === 'income';
     const mainAmt = (isInc?'+':'') + fmtCur(e.amount, e.currency)
     const foreignTag = e.currency !== 'KRW' 
@@ -616,52 +664,148 @@ function renderList(){
         ${foreignTag}
       </div>
       <div style="display:flex;gap:2px;flex-shrink:0">
-        <button class="exp-del" data-action="edit" data-idx="${i}" title="수정" style="color:var(--accent)"><i class="ti ti-pencil" aria-hidden="true"></i></button>
-        <button class="exp-del" data-action="del" data-idx="${i}" title="삭제"><i class="ti ti-trash" aria-hidden="true"></i></button>
+        <button class="exp-del" onclick="openEdit('${e.id}')" title="수정" style="color:var(--accent)"><i class="ti ti-pencil" aria-hidden="true"></i></button>
+        <button class="exp-del" onclick="delExpense('${e.id}')" title="삭제"><i class="ti ti-trash" aria-hidden="true"></i></button>
       </div>
     </div>`
   }).join('')
-    el.querySelectorAll('[data-action]').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      const idx=parseInt(btn.dataset.idx)
-      const expense=ST.expenses[idx]
-      if(!expense)return
-      if(btn.dataset.action==='edit')openEdit(expense.id)
-      if(btn.dataset.action==='del')delExpense(expense.id)
-    })
-  })
 }
 
+// ★ [수정 사항] 3. 달력 뷰 토글 함수 (월/주간)
+function setCalMode(m) {
+  calViewMode = m;
+  renderCal();
+}
+
+// ★ [수정 사항] 1, 3, 4 달력 수입/지출 분리 및 주간 요약 렌더링
 function renderCal(){
   const el=document.getElementById('calV')
-  const m=calD.getMonth(),y=calD.getFullYear()
-  const days=new Date(y,m+1,0).getDate(),first=new Date(y,m,1).getDay()
-  const now=new Date(),daily={}
+  const m=calD.getMonth(), y=calD.getFullYear()
+  const now=new Date()
+  
+  const daily={}
   ST.expenses.forEach(e=>{
-    if(sameM(e.date,m,y)) {
-      daily[e.date] = (daily[e.date]||0) + (e.type==='income' ? e.krw_amount : -e.krw_amount)
-    }
-  })
-  const cells=[]
-  for(let i=0;i<first;i++)cells.push('<div></div>')
-  for(let d=1;d<=days;d++){
-    const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
-    const amt=daily[ds],isT=d===now.getDate()&&m===now.getMonth()&&y===now.getFullYear(),isSel=selDay===ds
-    cells.push(`<div class="cc ${isSel?'sel':isT?'tod':amt?'has':''}" onclick="selCal('${ds}')"><span>${d}</span>${amt!==undefined&&amt!==0?`<span class="camt" style="color:${amt>0?'var(--success)':'var(--danger)'}">${amt>0?'+':''}${Math.abs(amt/10000).toFixed(0)}만</span>`:''}</div>`)
-  }
-  const si=selDay?ST.expenses.filter(e=>e.date===selDay):[]
-  el.innerHTML=`<div class="cn">
+    const dStr = e.date;
+    if(!daily[dStr]) daily[dStr] = { inc: 0, exp: 0 };
+    if(e.type === 'income') daily[dStr].inc += e.krw_amount;
+    else daily[dStr].exp += e.krw_amount;
+  });
+
+  let html = `<div class="cn" style="padding-bottom:0">
     <button class="cnb" onclick="shiftCal(-1)"><i class="ti ti-chevron-left" aria-hidden="true"></i></button>
     <span class="ct">${y}년 ${MON[m]}</span>
     <button class="cnb" onclick="shiftCal(1)"><i class="ti ti-chevron-right" aria-hidden="true"></i></button>
   </div>
-  <div class="cg">${['일','월','화','수','목','금','토'].map(d=>`<div class="ch">${d}</div>`).join('')}${cells.join('')}</div>
-  ${selDay?`<div class="cd">
-    <div style="display:flex;justify-content:space-between;margin-bottom:10px">
-      <span style="font-size:12px;color:var(--text3)">${selDay}</span>
-    </div>
-    ${si.length===0?`<p style="font-size:12px;color:var(--text3);text-align:center;padding:10px 0">이 날 내역 없음</p>`
-    :si.map(e=>`<div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:10px;padding:10px 14px;margin-bottom:8px">
+  <div class="cal-mode-grp">
+    <button class="cal-mode-btn ${calViewMode==='month'?'act':''}" onclick="setCalMode('month')">월간</button>
+    <button class="cal-mode-btn ${calViewMode==='week'?'act':''}" onclick="setCalMode('week')">주간</button>
+  </div>
+  <div class="cg">${['일','월','화','수','목','금','토'].map(d=>`<div class="ch">${d}</div>`).join('')}`;
+
+  const cells = [];
+  let weekStartDates = []; 
+
+  if (calViewMode === 'month') {
+    const days=new Date(y,m+1,0).getDate(), first=new Date(y,m,1).getDay()
+    for(let i=0;i<first;i++) cells.push('<div></div>')
+    for(let d=1;d<=days;d++){
+      const ds=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`
+      const isT=d===now.getDate()&&m===now.getMonth()&&y===now.getFullYear()
+      const dData = daily[ds] || { inc:0, exp:0 }
+      const hasData = dData.inc > 0 || dData.exp > 0;
+      
+      let camtHtml = '';
+      if(dData.inc > 0) camtHtml += `<span class="camt inc">+${fmtS(dData.inc)}</span>`;
+      if(dData.exp > 0) camtHtml += `<span class="camt exp">-${fmtS(dData.exp)}</span>`;
+
+      cells.push(`<div class="cc ${isT?'tod':hasData?'has':''}" onclick="openDayModal('${ds}')">
+        <span>${d}</span>
+        <div style="display:flex; flex-direction:column; align-items:center; width:100%">${camtHtml}</div>
+      </div>`)
+    }
+  } else {
+    const dTemp = new Date(calD);
+    const dayOfWeek = dTemp.getDay();
+    dTemp.setDate(dTemp.getDate() - dayOfWeek); 
+    
+    for(let i=0; i<7; i++) {
+      const cy = dTemp.getFullYear();
+      const cm = dTemp.getMonth() + 1;
+      const cd = dTemp.getDate();
+      const ds = `${cy}-${String(cm).padStart(2,'0')}-${String(cd).padStart(2,'0')}`;
+      weekStartDates.push(ds);
+      
+      const isT = cd===now.getDate() && (cm-1)===now.getMonth() && cy===now.getFullYear();
+      const dData = daily[ds] || { inc:0, exp:0 }
+      const hasData = dData.inc > 0 || dData.exp > 0;
+      
+      let camtHtml = '';
+      if(dData.inc > 0) camtHtml += `<span class="camt inc">+${fmtS(dData.inc)}</span>`;
+      if(dData.exp > 0) camtHtml += `<span class="camt exp">-${fmtS(dData.exp)}</span>`;
+
+      cells.push(`<div class="cc ${isT?'tod':hasData?'has':''}" style="aspect-ratio:auto; height:70px" onclick="openDayModal('${ds}')">
+        <span>${cd}</span>
+        <div style="display:flex; flex-direction:column; align-items:center; width:100%">${camtHtml}</div>
+      </div>`);
+      dTemp.setDate(dTemp.getDate() + 1);
+    }
+  }
+
+  html += cells.join('') + `</div>`;
+
+  // ★ [수정 사항] 4. 주별 뷰일 때 남는 공간에 카테고리별 수입/지출 요약 렌더링
+  if (calViewMode === 'week') {
+    const weekCats = { inc: {}, exp: {} };
+    ST.expenses.forEach(e => {
+      if(weekStartDates.includes(e.date)) {
+        if(e.type === 'income') weekCats.inc[e.category] = (weekCats.inc[e.category]||0) + e.krw_amount;
+        else weekCats.exp[e.category] = (weekCats.exp[e.category]||0) + e.krw_amount;
+      }
+    });
+
+    const renderCatSummary = (obj, isInc) => {
+      const keys = Object.keys(obj).sort((a,b)=>obj[b]-obj[a]);
+      if(keys.length===0) return '<p style="font-size:11px;color:var(--text3);padding:4px 0">내역 없음</p>';
+      return keys.map(k=>`<div class="brow"><span class="lb" style="font-size:12px">${EMO[k]||''} ${k}</span><span class="vl" style="font-size:12px; color:${isInc?'var(--success)':'var(--text)'}">${isInc?'+':''}${fmtCur(obj[k],'KRW')}</span></div>`).join('');
+    };
+
+    html += `<div class="cd" style="padding-top:16px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
+        <div>
+          <span class="st2">이번 주 지출</span>
+          <div style="margin-top:8px">${renderCatSummary(weekCats.exp, false)}</div>
+        </div>
+        <div>
+          <span class="st2" style="color:var(--success)">이번 주 수입</span>
+          <div style="margin-top:8px">${renderCatSummary(weekCats.inc, true)}</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+// ★ [수정 사항] 달력 화살표 클릭 시 모드에 따라 1개월 or 1주일 이동
+function shiftCal(d){
+  if(calViewMode === 'month') {
+    calD = new Date(calD.getFullYear(), calD.getMonth()+d, 1);
+  } else {
+    calD.setDate(calD.getDate() + (d*7));
+  }
+  renderCal()
+}
+
+// ★ [수정 사항] 2. 일자 클릭 시 팝업 띄우기 함수
+function openDayModal(ds) {
+  const si = ST.expenses.filter(e => e.date === ds);
+  document.getElementById('dayModalTitle').textContent = `${ds} 내역`;
+  const body = document.getElementById('dayModalBody');
+
+  if(si.length === 0) {
+    body.innerHTML = `<p style="font-size:13px;color:var(--text3);text-align:center;padding:20px 0">이 날의 수입/지출 내역이 없습니다.</p>`;
+  } else {
+    body.innerHTML = si.map(e => `<div style="display:flex;align-items:center;gap:10px;background:var(--surface2);border-radius:10px;padding:10px 14px;margin-bottom:8px">
       <span style="font-size:18px">${EMO[e.category]||'📦'}</span>
       <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${e.details}</div>
       <div style="font-size:11px;color:var(--text3)">${e.category}${e.note?' · '+e.note:''}</div></div>
@@ -669,8 +813,12 @@ function renderCal(){
         <div style="font-size:13px;font-weight:600;color:${e.type==='income'?'var(--success)':'var(--text)'}">${e.type==='income'?'+':''}${fmtCur(e.amount,e.currency)}</div>
         ${e.currency!=='KRW'?`<div style="font-size:10px;color:var(--text3)">${fmtCur(e.krw_amount,'KRW')}</div>`:''}
       </div>
-    </div>`).join('')}
-  </div>`:''}`
+    </div>`).join('');
+  }
+  document.getElementById('dayModal').style.display = 'flex';
+}
+function closeDayModal() {
+  document.getElementById('dayModal').style.display = 'none';
 }
 
 function renderFixedList(type) {
@@ -710,20 +858,19 @@ function renderFixedList(type) {
   document.getElementById(isInc ? 'fixedIncomeCard' : 'fixedExpenseCard').innerHTML = html;
 }
 
-// <!-- ★ [수정 사항] 클릭 시 필터링을 위한 toggle 함수 추가 -->
 function toggleVarCat(c){
   if(hiddenVarCats.has(c)) hiddenVarCats.delete(c);
   else hiddenVarCats.add(c);
   renderVarDonut();
+  // ★ [수정 사항] 도넛 차트 토글 시 목록도 필터링 되도록 재렌더링 호출
+  if(tab === 'list') renderList();
 }
 
-// <!-- ★ [수정 사항] 클릭 이벤트, 숨김 처리 UI 반영, 필터링 된 데이터로 차트 렌더링 -->
 function renderVarDonut(){
   const now=new Date(),m=now.getMonth(),y=now.getFullYear()
   const map={}
   ST.expenses.filter(e=>sameM(e.date,m,y)&&e.type==='expense').forEach(e=>{map[e.category]=(map[e.category]||0)+e.krw_amount})
   
-  // 전체 카테고리 (금액순 정렬)
   const allKeys=Object.keys(map).sort((a,b)=>map[b]-map[a]);
   const el=document.getElementById('varDonutCard')
   
@@ -744,7 +891,6 @@ function renderVarDonut(){
   
   if(varChart){varChart.destroy();varChart=null}
   
-  // 숨겨지지 않은(체크된) 항목만 골라서 차트 데이터에 넣음
   const visibleKeys = allKeys.filter(k => !hiddenVarCats.has(k));
   const visibleData = visibleKeys.map(k => map[k]);
   const visibleColors = visibleKeys.map(k => CATS[k]||'#9CA3AF');
@@ -755,7 +901,6 @@ function renderVarDonut(){
       type:'doughnut',
       data:{
         labels:visibleKeys,
-        // 선택된 항목이 하나도 없을 경우 빈 회색 도넛 표시
         datasets:[{
           data:visibleData.length?visibleData:[1],
           backgroundColor:visibleData.length?visibleColors:['#E5E7EB'],
@@ -804,7 +949,16 @@ function openEdit(id){
   document.getElementById('fDet').value=e.details
   document.getElementById('fCur').value=e.currency||'KRW'
   document.getElementById('fAmt').value=e.amount
-  document.getElementById('fKrwAmt').value=e.krw_amount || e.amount || '';
+  
+  if (e.currency !== 'KRW' && e.krw_amount && e.amount) {
+    let rate;
+    if (e.currency === 'JPY') rate = e.krw_amount / (e.amount / 100);
+    else rate = e.krw_amount / e.amount;
+    document.getElementById('fKrwAmt').value = Math.round(rate * 100) / 100;
+  } else {
+    document.getElementById('fKrwAmt').value = '';
+  }
+
   checkCurrency(); 
   document.getElementById('fNote').value=e.note||''
   document.getElementById('fErr').style.display='none'
