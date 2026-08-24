@@ -135,7 +135,6 @@ body.force-mobile .sum-grid{grid-template-columns:1fr!important}
 .cc.has{background:rgba(251,191,36,.13);color:var(--text)}
 .cc.tod{background:var(--accent-l);outline:1.5px solid rgba(79,70,229,.35);color:var(--accent)}
 .cc.sel{background:var(--accent);color:#fff}
-/* ★ [수정 사항] 달력 금액 색상 분리 스타일 (수입/지출) */
 .camt{font-size:9.5px;margin-top:1px;font-weight:600;letter-spacing:-0.5px;line-height:1.2}
 .camt.inc{color:var(--success)}
 .camt.exp{color:var(--danger)}
@@ -212,7 +211,6 @@ body.force-mobile .ov{align-items:flex-end}
 .tgl-btn{flex:1;text-align:center;padding:8px;font-size:13px;font-weight:600;color:var(--text2);cursor:pointer;border-radius:6px;transition:all 0.2s}
 .tgl-btn.act{background:var(--surface);color:var(--accent);box-shadow:var(--shadow)}
 
-/* ★ [수정 사항] 주간/월간 뷰 버튼 그룹 스타일 */
 .cal-mode-grp{display:flex; gap:10px; padding:0 18px 10px; justify-content:flex-end}
 .cal-mode-btn{background:none; border:none; color:var(--text3); font-size:12px; font-weight:600; cursor:pointer; padding:4px 8px; border-radius:6px;}
 .cal-mode-btn.act{color:var(--accent); background:var(--accent-l);}
@@ -314,7 +312,6 @@ body.force-mobile .ov{align-items:flex-end}
           <input type="number" class="fi3" id="fAmt" placeholder="0" min="0" style="flex:1">
         </div>
       </div>
-      <!-- ★ [수정 사항] 환율 입력 방식으로 라벨 변경 -->
       <div class="fg" id="krwWrap" style="display:none">
         <label class="fl">적용 환율 <span id="rateLabel" style="color:var(--accent)"></span> <span class="req">*</span></label>
         <input type="number" class="fi3" id="fKrwAmt" placeholder="예: 900">
@@ -341,7 +338,6 @@ body.force-mobile .ov{align-items:flex-end}
   </div>
 </div>
 
-<!-- ★ [수정 사항] 달력 일자 클릭 시 뜨는 내역 모달창 구조 -->
 <div class="ov" id="dayModal" style="display:none" onclick="if(event.target===this)closeDayModal()">
   <div class="modal">
     <div class="mh"><span class="mt2" id="dayModalTitle">날짜 내역</span><button class="mc" onclick="closeDayModal()"><i class="ti ti-x" aria-hidden="true"></i></button></div>
@@ -351,7 +347,6 @@ body.force-mobile .ov{align-items:flex-end}
 </div>
 
 <script>
-// ★ [수정 사항] 카드값 색상 및 이모지 추가
 const CATS={식비:'#F59E0B',교통:'#3B82F6',주거:'#8B5CF6',여가:'#EC4899',의료:'#10B981',쇼핑:'#F97316',공과금:'#06B6D4',교육:'#6366F1',통신:'#14B8A6',여행:'#0EA5E9',기타:'#9CA3AF', 급여:'#10B981',용돈:'#34D399',부수입:'#059669', 카드값:'#475569'}
 const EMO={식비:'🍚',교통:'🚌',주거:'🏠',여가:'🎬',의료:'💊',쇼핑:'🛍️',공과금:'💡',교육:'📚',통신:'📞',여행:'✈️',기타:'📦', 급여:'💰',용돈:'💵',부수입:'📈', 카드값:'💳'}
 const CUR={
@@ -364,14 +359,17 @@ const MON=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월
 
 let GAS=localStorage.getItem('gas_url')||''
 let ST={budget:0,currency:'KRW',expenses:[],fixed:[]}
-let tab='list',calD=new Date()
+let tab='list',calD=new Date(),selDay=null
 let varChart=null,fixChart=null 
 let busy=false,editTargetId=null
 let editFixedId=null;
 let currentModalType = 'expense';
 let hiddenVarCats = new Set();
-// ★ [수정 사항] 달력 보기 모드 상태 저장 변수 (month 또는 week)
 let calViewMode = 'month';
+
+// ★ [수정 사항] 목록 정렬 및 수입 필터 상태 변수 추가
+let sortOrder = 'desc'; 
+let showIncomeInList = true;
 
 function setView(v){
   document.body.classList.remove('force-mobile','force-desktop')
@@ -632,24 +630,53 @@ function renderSum(){
   </div>`
 }
 
+// ★ [수정 사항] 정렬 토글 함수 및 수입 표시 토글 함수
+function toggleSortOrder() {
+  sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+  renderList();
+}
+function toggleIncomeList() {
+  showIncomeInList = !showIncomeInList;
+  renderList();
+}
+
 function renderList(){
   const el=document.getElementById('listV')
   
-  // ★ [수정 사항] 6. 입력순이 아닌 날짜순(최신순) 정렬 적용
-  let sortedList = [...ST.expenses].sort((a,b) => new Date(b.date) - new Date(a.date));
+  let sortedList = [...ST.expenses];
+
+  // ★ [수정 사항] 날짜순 정렬 (내림차순/올림차순 반영)
+  sortedList.sort((a,b) => {
+    const da = new Date(a.date), db = new Date(b.date);
+    return sortOrder === 'desc' ? db - da : da - db;
+  });
   
-  // ★ [수정 사항] 5. 도넛 차트에서 끈(숨긴) 변동 지출 카테고리 필터링
+  // ★ [수정 사항] 수입 필터링 적용
+  if(!showIncomeInList) {
+    sortedList = sortedList.filter(e => e.type !== 'income');
+  }
+
+  // ★ [수정 사항] 도넛 차트의 숨김 카테고리 필터링 반영
   sortedList = sortedList.filter(e => {
     if (e.type === 'expense' && hiddenVarCats.has(e.category)) return false;
     return true;
   });
 
+  const controlBar = `<div style="display:flex; justify-content:space-between; align-items:center; padding: 10px 18px; border-bottom: 0.5px solid var(--border);">
+    <label style="font-size:13px; color:var(--text2); display:flex; align-items:center; gap:6px; cursor:pointer;">
+      <input type="checkbox" ${showIncomeInList ? 'checked' : ''} onchange="toggleIncomeList()" style="cursor:pointer"> 수입 포함
+    </label>
+    <button style="background:none; border:none; font-size:13px; color:var(--text2); cursor:pointer; display:flex; align-items:center; gap:4px; padding:4px" onclick="toggleSortOrder()">
+      <i class="ti ti-sort-${sortOrder === 'desc' ? 'descending' : 'ascending'}" style="font-size:16px"></i> ${sortOrder === 'desc' ? '최신순' : '과거순'}
+    </button>
+  </div>`;
+
   if(sortedList.length===0){
-    el.innerHTML=`<div class="empty"><div style="font-size:40px;margin-bottom:12px">💸</div><div style="font-size:14px;margin-bottom:8px;color:var(--text2)">표시할 내역이 없어요.</div></div>`
+    el.innerHTML = controlBar + `<div class="empty"><div style="font-size:40px;margin-bottom:12px">💸</div><div style="font-size:14px;margin-bottom:8px;color:var(--text2)">표시할 내역이 없어요.</div></div>`
     return
   }
   
-  el.innerHTML=sortedList.map((e,i)=>{
+  const listHtml = sortedList.map((e,i)=>{
     const isInc = e.type === 'income';
     const mainAmt = (isInc?'+':'') + fmtCur(e.amount, e.currency)
     const foreignTag = e.currency !== 'KRW' 
@@ -668,16 +695,16 @@ function renderList(){
         <button class="exp-del" onclick="delExpense('${e.id}')" title="삭제"><i class="ti ti-trash" aria-hidden="true"></i></button>
       </div>
     </div>`
-  }).join('')
+  }).join('');
+
+  el.innerHTML = controlBar + listHtml;
 }
 
-// ★ [수정 사항] 3. 달력 뷰 토글 함수 (월/주간)
 function setCalMode(m) {
   calViewMode = m;
   renderCal();
 }
 
-// ★ [수정 사항] 1, 3, 4 달력 수입/지출 분리 및 주간 요약 렌더링
 function renderCal(){
   const el=document.getElementById('calV')
   const m=calD.getMonth(), y=calD.getFullYear()
@@ -753,7 +780,6 @@ function renderCal(){
 
   html += cells.join('') + `</div>`;
 
-  // ★ [수정 사항] 4. 주별 뷰일 때 남는 공간에 카테고리별 수입/지출 요약 렌더링
   if (calViewMode === 'week') {
     const weekCats = { inc: {}, exp: {} };
     ST.expenses.forEach(e => {
@@ -786,7 +812,6 @@ function renderCal(){
   el.innerHTML = html;
 }
 
-// ★ [수정 사항] 달력 화살표 클릭 시 모드에 따라 1개월 or 1주일 이동
 function shiftCal(d){
   if(calViewMode === 'month') {
     calD = new Date(calD.getFullYear(), calD.getMonth()+d, 1);
@@ -796,7 +821,6 @@ function shiftCal(d){
   renderCal()
 }
 
-// ★ [수정 사항] 2. 일자 클릭 시 팝업 띄우기 함수
 function openDayModal(ds) {
   const si = ST.expenses.filter(e => e.date === ds);
   document.getElementById('dayModalTitle').textContent = `${ds} 내역`;
@@ -862,7 +886,6 @@ function toggleVarCat(c){
   if(hiddenVarCats.has(c)) hiddenVarCats.delete(c);
   else hiddenVarCats.add(c);
   renderVarDonut();
-  // ★ [수정 사항] 도넛 차트 토글 시 목록도 필터링 되도록 재렌더링 호출
   if(tab === 'list') renderList();
 }
 
